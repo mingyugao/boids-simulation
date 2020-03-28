@@ -2,4 +2,4 @@
 
 Simulating Flocking Behavior.
 
-Live demo at: (https://mingyugao.github.io/boids-simulation)[https://mingyugao.github.io/boids-simulation]
+Live demo at: [https://mingyugao.github.io/boids-simulation](https://mingyugao.github.io/boids-simulation)
