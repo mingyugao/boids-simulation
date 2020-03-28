@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/static/css/main.d1b9ce6a.chunk.css",
-    "main.js": "/static/js/main.f2080794.chunk.js",
-    "main.js.map": "/static/js/main.f2080794.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.52275587.js",
-    "runtime-main.js.map": "/static/js/runtime-main.52275587.js.map",
-    "static/css/2.2fbe55bd.chunk.css": "/static/css/2.2fbe55bd.chunk.css",
-    "static/js/2.57432e6f.chunk.js": "/static/js/2.57432e6f.chunk.js",
-    "static/js/2.57432e6f.chunk.js.map": "/static/js/2.57432e6f.chunk.js.map",
-    "index.html": "/index.html",
-    "precache-manifest.97977d70fdc20e6520b35536d8b3dd73.js": "/precache-manifest.97977d70fdc20e6520b35536d8b3dd73.js",
-    "service-worker.js": "/service-worker.js",
-    "static/css/2.2fbe55bd.chunk.css.map": "/static/css/2.2fbe55bd.chunk.css.map",
-    "static/css/main.d1b9ce6a.chunk.css.map": "/static/css/main.d1b9ce6a.chunk.css.map",
-    "static/js/2.57432e6f.chunk.js.LICENSE.txt": "/static/js/2.57432e6f.chunk.js.LICENSE.txt"
+    "main.css": "/boids-simulation/static/css/main.d1b9ce6a.chunk.css",
+    "main.js": "/boids-simulation/static/js/main.f2080794.chunk.js",
+    "main.js.map": "/boids-simulation/static/js/main.f2080794.chunk.js.map",
+    "runtime-main.js": "/boids-simulation/static/js/runtime-main.2bc1786f.js",
+    "runtime-main.js.map": "/boids-simulation/static/js/runtime-main.2bc1786f.js.map",
+    "static/css/2.2fbe55bd.chunk.css": "/boids-simulation/static/css/2.2fbe55bd.chunk.css",
+    "static/js/2.46c1f399.chunk.js": "/boids-simulation/static/js/2.46c1f399.chunk.js",
+    "static/js/2.46c1f399.chunk.js.map": "/boids-simulation/static/js/2.46c1f399.chunk.js.map",
+    "index.html": "/boids-simulation/index.html",
+    "precache-manifest.c126c0975ad9a4d83a8481ca4abed57d.js": "/boids-simulation/precache-manifest.c126c0975ad9a4d83a8481ca4abed57d.js",
+    "service-worker.js": "/boids-simulation/service-worker.js",
+    "static/css/2.2fbe55bd.chunk.css.map": "/boids-simulation/static/css/2.2fbe55bd.chunk.css.map",
+    "static/css/main.d1b9ce6a.chunk.css.map": "/boids-simulation/static/css/main.d1b9ce6a.chunk.css.map",
+    "static/js/2.46c1f399.chunk.js.LICENSE.txt": "/boids-simulation/static/js/2.46c1f399.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.52275587.js",
+    "static/js/runtime-main.2bc1786f.js",
     "static/css/2.2fbe55bd.chunk.css",
-    "static/js/2.57432e6f.chunk.js",
+    "static/js/2.46c1f399.chunk.js",
     "static/css/main.d1b9ce6a.chunk.css",
     "static/js/main.f2080794.chunk.js"
   ]
