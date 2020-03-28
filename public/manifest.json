@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Boids Simulation",
+  "name": "Simulating Flocking Behavior",
   "icons": [
     {
       "src": "favicon.ico",
