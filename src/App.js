@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { withStyles } from '@material-ui/styles';
 import { Slider, Typography } from 'antd';
+import Boid from './Boid';
 
 const styles = () => ({
   root: {
@@ -26,14 +27,10 @@ const styles = () => ({
     textAlign: 'center',
     backgroundColor: '#8c8c8c'
   },
-  canvasContainer: {
+  canvas: {
     width: '600px',
     height: '600px',
-    '& > canvas': {
-      width: '100%',
-      height: '100%',
-      backgroundColor: '#000000'
-    }
+    backgroundColor: '#000000'
   },
   inputContainer: {
     width: '300px',
@@ -52,30 +49,22 @@ const styles = () => ({
   }
 });
 
-const addBoid = () => {
-};
-
-const removeBoid = () => {
-};
-
-const moveBoids = boids => {
-  return boids;
-};
-
-const drawBoids = (ctx, boids) => {
-  // boids.forEach(boid => {
-  //   ctx.fillRect(boid.x, boid.y, 50, 50);
-  // });
-};
-
-const minNumBirds = 1;
+const minNumBirds = 2;
 const maxNumBirds = 30;
-const minBirdSpeed = 1;
-const maxBirdSpeed = 10;
+const minBirdSpeed = 3;
+const maxBirdSpeed = 8;
 const minAvoidCrowd = 1;
 const maxAvoidCrowd = 10;
 
 function App({ classes }) {
+  const canvas = useRef(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [boids, setBoids] = useState([
+    { id: 1, x: 100, y: 100, vx: 0, vy: 0 },
+    { id: 2, x: 200, y: 200, vx: 0, vy: 0 },
+    { id: 3, x: 200, y: 100, vx: 0, vy: 0 },
+    { id: 3, x: 550, y: 550, vx: 0, vy: 0 }
+  ]);
   const [numBirds, setNumBirds] = useState(minNumBirds);
   const [birdSpeed, setBirdSpeed] = useState(
     Math.trunc((minBirdSpeed + maxBirdSpeed) / 2)
@@ -84,25 +73,62 @@ function App({ classes }) {
     Math.trunc((minAvoidCrowd + maxAvoidCrowd) / 2)
   );
 
-  const [boids, setBoids] = useState([]);
+  useEffect(() => {
+    if (canvas.current) {
+      const { x, y } = canvas.current.getBoundingClientRect();
+      setOffset({ x, y });
+    }
+  }, [canvas]);
 
-  // useEffect(() => {
-  //   if (numBirds > boids.length) {
-  //     setBoids(addBoid(boids));
-  //   } else {
-  //     setBoids(removeBoid(boids));
-  //   }
-  // }, [numBirds]);
+  useEffect(() => {
+    let _boids = boids;
 
-  // useEffect(() => {
-  //   const canvas = document.getElementById('canvas');
-  //   const ctx = canvas.getContext('2d');
-  //
-  //   setInterval(() => {
-  //     drawBoids(ctx, boids);
-  //     setBoids(moveBoids(boids));
-  //   }, 1000);
-  // }, []);
+    const applyRule1 = () => {
+      _boids = _boids.map(self => {
+        const otherBoids = _boids.filter(boid => self.id !== boid.id);
+        const avgX = otherBoids.map(b => b.x).reduce((acc, cur) => {
+          return acc + cur;
+        }) / otherBoids.length;
+        const avgY = otherBoids.map(b => b.y).reduce((acc, cur) => {
+          return acc + cur;
+        }) / otherBoids.length;
+        let newVx = (avgX - self.x);
+        let newVy = (avgY - self.y);
+        const magnitude = Math.sqrt(newVx * newVx + newVy * newVy);
+        newVx /= magnitude;
+        newVy /= magnitude;
+        newVx *= birdSpeed;
+        newVy *= birdSpeed;
+
+        return {
+          ...self,
+          vx: newVx,
+          vy: newVy
+        };
+      });
+    };
+
+    // const applyRule2 = () => {
+    // };
+
+    // const applyRule3 = () => {
+    // };
+
+    const moveBoids = () => {
+      setBoids(_boids.map(boid => ({
+        ...boid,
+        x: boid.x + boid.vx,
+        y: boid.y + boid.vy,
+      })));
+    };
+
+    setTimeout(() => {
+      applyRule1(); // boids move towards center perceived of mass
+      // applyRule2();
+      // applyRule3();
+      moveBoids();
+    }, 1000 / 2);
+  }, [boids]);
 
   return (
     <div className={classes.root}>
@@ -110,8 +136,12 @@ function App({ classes }) {
         <Typography.Title>Simulating Flocking Behavior</Typography.Title>
       </div>
       <div className={classes.content}>
-        <div className={classes.canvasContainer}>
-          <canvas id="canvas" />
+        <div className={classes.canvas} ref={canvas}>
+          {boids.map((boid, index) => {
+            return (
+              <Boid key={index} boid={boid} offset={offset} />
+            );
+          })}
         </div>
         <div className={classes.inputContainer}>
           <Typography.Text>
@@ -121,7 +151,7 @@ function App({ classes }) {
             value={numBirds}
             min={minNumBirds}
             max={maxNumBirds}
-            onChange={setNumBirds}
+            onChange={value => setNumBirds(value)}
           />
           <Typography.Text>
             Speed towards flock
@@ -130,7 +160,7 @@ function App({ classes }) {
             value={birdSpeed}
             min={minBirdSpeed}
             max={maxBirdSpeed}
-            onChange={setBirdSpeed}
+            onChange={(value) => setBirdSpeed(value)}
           />
           <Typography.Text>
             Tendency to avoid crowding
@@ -139,7 +169,7 @@ function App({ classes }) {
             value={avoidCrowd}
             min={minAvoidCrowd}
             max={maxAvoidCrowd}
-            onChange={setAvoidCrowd}
+            onChange={(value) => setAvoidCrowd(value)}
           />
         </div>
       </div>
