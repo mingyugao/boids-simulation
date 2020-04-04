@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { withStyles } from '@material-ui/styles';
-import { Slider, Typography } from 'antd';
+import { Button, Slider, Typography } from 'antd';
 import Boid from './Boid';
 
 const styles = () => ({
@@ -46,6 +46,18 @@ const styles = () => ({
         backgroundColor: '#8c8c8c'
       }
     }
+  },
+  numBirdsControl: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: '0.5rem 0 1.5rem',
+    '& > button': {
+      width: '6rem'
+    },
+    '& > span': {
+      color: '#ffffff'
+    }
   }
 });
 
@@ -54,16 +66,18 @@ const maxNumBirds = 30;
 const minBirdSpeed = 3;
 const maxBirdSpeed = 8;
 const minAvoidCrowd = 1;
-const maxAvoidCrowd = 10;
+const maxAvoidCrowd = 5;
+
+const getRandomInt = max => {
+  return Math.floor(Math.random() * Math.floor(max));
+};
 
 function App({ classes }) {
   const canvas = useRef(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [boids, setBoids] = useState([
-    { id: 1, x: 100, y: 100, vx: 0, vy: 0 },
-    { id: 2, x: 200, y: 200, vx: 0, vy: 0 },
-    { id: 3, x: 200, y: 100, vx: 0, vy: 0 },
-    { id: 3, x: 550, y: 550, vx: 0, vy: 0 }
+    { id: Date.now() - 1, x: getRandomInt(600), y: getRandomInt(600), vx: 0, vy: 0 },
+    { id: Date.now(), x: getRandomInt(600), y: getRandomInt(600), vx: 0, vy: 0 }
   ]);
   const [numBirds, setNumBirds] = useState(minNumBirds);
   const [birdSpeed, setBirdSpeed] = useState(
@@ -92,43 +106,107 @@ function App({ classes }) {
         const avgY = otherBoids.map(b => b.y).reduce((acc, cur) => {
           return acc + cur;
         }) / otherBoids.length;
-        let newVx = (avgX - self.x);
-        let newVy = (avgY - self.y);
-        const magnitude = Math.sqrt(newVx * newVx + newVy * newVy);
-        newVx /= magnitude;
-        newVy /= magnitude;
-        newVx *= birdSpeed;
-        newVy *= birdSpeed;
+        let newVx = avgX - self.x;
+        let newVy = avgY - self.y;
+        const magnitude = Math.sqrt(Math.pow(newVx, 2) + Math.pow(newVy, 2));
 
         return {
           ...self,
-          vx: newVx,
-          vy: newVy
+          vx: newVx / magnitude,
+          vy: newVy / magnitude
         };
       });
     };
 
-    // const applyRule2 = () => {
-    // };
+    const applyRule2 = () => {
+      _boids = _boids.map(self => {
+        const otherBoids = _boids.filter(boid => self.id !== boid.id);
+        let accVx = 0;
+        let accVy = 0;
+        otherBoids.forEach(other => {
+          const distance = Math.sqrt(
+            Math.pow(self.x - other.x, 2) + Math.pow(self.y - other.y, 2)
+          );
+          if (distance < avoidCrowd * 20) {
+            let newVx = self.x - other.x;
+            let newVy = self.y - other.y;
+            const magnitude = Math.sqrt(Math.pow(newVx, 2) + Math.pow(newVy, 2));
+            newVx = newVx / magnitude;
+            newVy = newVy / magnitude;
+            accVx += newVx;
+            accVy += newVy;
+            const accMagnitude = Math.sqrt(Math.pow(accVx, 2) + Math.pow(accVy, 2));
+            accVx /= accMagnitude;
+            accVy /= accMagnitude;
+          }
+        });
+
+        return {
+          ...self,
+          vx: accVx ? accVx : self.vx,
+          vy: accVy ? accVy : self.vy
+        };
+      });
+    };
 
     // const applyRule3 = () => {
     // };
 
     const moveBoids = () => {
-      setBoids(_boids.map(boid => ({
-        ...boid,
-        x: boid.x + boid.vx,
-        y: boid.y + boid.vy,
-      })));
+      _boids = _boids.map(boid => {
+        let newX = boid.x + birdSpeed * boid.vx;
+        let newY = boid.y + birdSpeed * boid.vy;
+        if (newX < 0) newX = 0;
+        if (newX > 600) newX = 600;
+        if (newY < 0) newY = 0;
+        if (newY > 600) newY = 600;
+        return {
+          ...boid,
+          x: newX,
+          y: newY
+        };
+      });
+    };
+
+    const addRemoveBoids = () => {
+      const difference = numBirds - _boids.length;
+      if (difference > 0) {
+        for (let i = 0; i < difference; i++) {
+          _boids = [..._boids, {
+            id: Date.now(),
+            x: getRandomInt(600),
+            y: getRandomInt(600),
+            vx: 0,
+            vy: 0
+          }];
+        }
+      } else if (difference < 0) {
+        for (let i = 0; i < Math.abs(difference); i++) {
+          _boids = _boids.slice(0, boids.length - 1);
+        }
+      }
     };
 
     setTimeout(() => {
       applyRule1(); // boids move towards center perceived of mass
-      // applyRule2();
+      applyRule2(); // boids try to keep a small distance away from other boids
       // applyRule3();
       moveBoids();
-    }, 1000 / 2);
+      addRemoveBoids();
+      setBoids(_boids);
+    }, 1000 / 5);
   }, [boids]);
+
+
+  const handleClick = newNumBirds => {
+    if (
+      newNumBirds !== numBirds &&
+      newNumBirds >= minNumBirds &&
+      newNumBirds <= maxNumBirds
+    ) {
+      setNumBirds(newNumBirds);
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -147,14 +225,27 @@ function App({ classes }) {
           <Typography.Text>
             Number of birds
           </Typography.Text>
-          <Slider
-            value={numBirds}
-            min={minNumBirds}
-            max={maxNumBirds}
-            onChange={value => setNumBirds(value)}
-          />
+          <div className={classes.numBirdsControl}>
+            <Button
+              disabled={numBirds === minNumBirds}
+              shape="round"
+              onClick={() => handleClick(numBirds - 1)}
+            >
+              Remove
+            </Button>
+            <Typography.Text>
+              {numBirds}
+            </Typography.Text>
+            <Button
+              disabled={numBirds === maxNumBirds}
+              shape="round"
+              onClick={() => handleClick(numBirds + 1)}
+            >
+              Add
+            </Button>
+          </div>
           <Typography.Text>
-            Speed towards flock
+            Speed
           </Typography.Text>
           <Slider
             value={birdSpeed}
@@ -166,6 +257,7 @@ function App({ classes }) {
             Tendency to avoid crowding
           </Typography.Text>
           <Slider
+            step={0.5}
             value={avoidCrowd}
             min={minAvoidCrowd}
             max={maxAvoidCrowd}
